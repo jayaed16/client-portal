@@ -1,0 +1,360 @@
+:root {
+  --bg: #020617;
+  --surface: #020617;
+  --card: #020617;
+  --border: #1f2937;
+  --accent: #22c55e;
+  --accent-soft: rgba(34, 197, 94, 0.1);
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --danger: #f97373;
+  --radius-lg: 18px;
+  --radius-md: 10px;
+  --shadow-card: 0 18px 45px rgba(15, 23, 42, 0.85);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at top, #1f2937 0, #020617 40%);
+  color: var(--text-main);
+}
+
+/* Layout shell */
+
+.portal-shell {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+
+.topbar {
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  padding: 10px 18px;
+  margin: 0 auto 18px;
+  max-width: 1100px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+.topbar-site {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.divider {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.user-email {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Center wrapper: login or editor */
+
+.center-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Layout when logged in */
+
+.layout {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr);
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .topbar {
+    max-width: none;
+  }
+
+  .center-wrapper {
+    align-items: flex-start;
+    padding-top: 72px;
+  }
+}
+
+/* Card */
+
+.card {
+  background: radial-gradient(circle at top left, #111827, #020617 50%);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-header,
+.card-body,
+.card-footer {
+  padding: 16px 18px;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.card-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Centered card for login */
+
+.center-card {
+  max-width: 420px;
+  width: 100%;
+}
+
+/* Typography helpers */
+
+.muted-text {
+  color: var(--text-muted);
+}
+
+.muted-text.small {
+  font-size: 13px;
+}
+
+.muted-text.tiny {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-header.center,
+.card-footer.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo dot */
+
+.logo-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #bbf7d0 0, #22c55e 30%, #16a34a 65%, #052e16 100%);
+  box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.9), 0 0 25px rgba(74, 222, 128, 0.8);
+}
+
+/* Forms */
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.form.two-column {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .form.two-column {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.input {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-main);
+  padding: 8px 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Buttons */
+
+.button {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-main);
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    transform 0.08s ease,
+    box-shadow 0.14s ease;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button.primary {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: rgba(34, 197, 94, 0.9);
+  color: #022c22;
+  box-shadow: 0 10px 25px rgba(22, 163, 74, 0.5);
+}
+
+.button.primary:hover {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+}
+
+.button.ghost {
+  border-color: rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.button.ghost:hover {
+  border-color: rgba(148, 163, 184, 0.95);
+}
+
+.button.full {
+  width: 100%;
+}
+
+/* Error */
+
+.error-text {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* Footer layout */
+
+.space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hero preview */
+
+.hero-preview {
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: radial-gradient(circle at top, #020617 0, #020617 45%, #020617 100%);
+  position: relative;
+}
+
+.hero-tag {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.hero-title {
+  margin: 4px 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.hero-subtext {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
+.hero-button {
+  border-radius: 999px;
+  border: none;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #022c22;
+}
+
+/* Utility */
+
+.hidden {
+  display: none !important;
+}

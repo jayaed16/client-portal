@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>J.E.D. Client Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="portal-shell">
+      <!-- Top bar (hidden until logged in) -->
+      <header id="topbar" class="topbar hidden">
+        <div class="topbar-left">
+          <div class="logo-dot"></div>
+          <span class="app-name">J.E.D. Client Portal</span>
+          <span class="divider">/</span>
+          <span id="current-site-label" class="topbar-site">Test Site</span>
+        </div>
+        <div class="topbar-right">
+          <span id="user-email" class="user-email"></span>
+          <button id="logout-btn" class="button ghost">Log out</button>
+        </div>
+      </header>
+
+      <!-- Center card wrapper -->
+      <div id="center-wrapper" class="center-wrapper">
+        <!-- Login card -->
+        <section id="login-card" class="card center-card">
+          <div class="card-header center">
+            <div class="logo-dot"></div>
+            <span class="app-name">J.E.D. Client Portal</span>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title">Sign in</h1>
+            <p class="muted-text small">
+              Use the credentials you received from your designer.
+            </p>
+
+            <form id="login-form" class="form">
+              <label class="field">
+                <span class="field-label">Email</span>
+                <input
+                  id="login-email"
+                  class="input"
+                  type="email"
+                  autocomplete="email"
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span class="field-label">Password</span>
+                <input
+                  id="login-password"
+                  class="input"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                />
+              </label>
+
+              <p id="login-error" class="error-text hidden"></p>
+
+              <button class="button primary full" type="submit">
+                Continue
+              </button>
+            </form>
+          </div>
+          <div class="card-footer center">
+            <span class="muted-text tiny">
+              Managed by J.E.D. Consulting
+            </span>
+          </div>
+        </section>
+
+        <!-- Editor + preview layout (hidden until logged in) -->
+        <main id="editor-layout" class="layout hidden">
+          <!-- Editor card -->
+          <section class="card">
+            <div class="card-header">
+              <h2 class="card-title">Home hero</h2>
+              <p class="muted-text small">
+                Update the main hero section on your homepage.
+              </p>
+            </div>
+            <div class="card-body">
+              <div class="form two-column">
+                <label class="field">
+                  <span class="field-label">Headline</span>
+                  <input
+                    id="hero-headline"
+                    class="input"
+                    placeholder="Example: Design that works as hard as you do."
+                  />
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Supporting text</span>
+                  <textarea
+                    id="hero-subtext"
+                    class="input textarea"
+                    placeholder="Add a short sentence that explains what you do and who you help."
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Button label</span>
+                  <input
+                    id="hero-button-text"
+                    class="input"
+                    placeholder="Example: Book a call"
+                  />
+                </label>
+              </div>
+            </div>
+            <div class="card-footer space-between">
+              <span id="save-status" class="muted-text tiny"></span>
+              <button id="save-btn" class="button primary">
+                Save
+              </button>
+            </div>
+          </section>
+
+          <!-- Preview card -->
+          <section class="card">
+            <div class="card-header">
+              <h2 class="card-title">Live preview</h2>
+              <p class="muted-text small">
+                This is how your hero will look on the site.
+              </p>
+            </div>
+            <div class="card-body">
+              <div class="hero-preview">
+                <div class="hero-tag">Home</div>
+                <h1 id="preview-headline" class="hero-title">
+                  Your headline will appear here
+                </h1>
+                <p id="preview-subtext" class="hero-subtext">
+                  Use this space to explain what you do in one or two sentences.
+                </p>
+                <button id="preview-button" class="button hero-button">
+                  Primary action
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Firebase + app logic -->
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
