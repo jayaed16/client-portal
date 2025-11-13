@@ -1,4 +1,5 @@
-// script.js (PORTAL)
+// script.js — PORTAL with draft/published + iframe preview
+
 import { auth, db } from "./firebase.js";
 import {
   onAuthStateChanged,
@@ -11,13 +12,17 @@ import {
   setDoc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-// For now, one test site.
-// Later: pull from URL or user document.
+// For now, a single test site
 const CURRENT_SITE_ID = "test-site-1";
 
-// DOM references
+// 🔽 Live client site base URL (GitHub Pages)
+const CLIENT_SITE_BASE_URL =
+  "https://jayaed16.github.io/client-site-template";
+
+// -------- DOM refs --------
+
+// Layout / auth
 const topbarEl = document.getElementById("topbar");
-const centerWrapperEl = document.getElementById("center-wrapper");
 const loginCardEl = document.getElementById("login-card");
 const editorLayoutEl = document.getElementById("editor-layout");
 
@@ -43,7 +48,9 @@ const contactHeadingEl = document.getElementById("contact-heading");
 const contactBodyEl = document.getElementById("contact-body");
 const contactButtonTextEl = document.getElementById("contact-button-text");
 
-const saveBtn = document.getElementById("save-btn");
+// Save / publish
+const saveBtn = document.getElementById("save-btn"); // Save draft
+const publishBtn = document.getElementById("publish-btn"); // Publish
 const saveStatusEl = document.getElementById("save-status");
 
 // Tabs
@@ -51,52 +58,19 @@ const tabButtons = document.querySelectorAll(".editor-tab");
 const editorHomeEl = document.getElementById("editor-home");
 const editorAboutEl = document.getElementById("editor-about");
 const editorContactEl = document.getElementById("editor-contact");
-const previewHomeEl = document.getElementById("preview-home");
-const previewAboutEl = document.getElementById("preview-about");
-const previewContactEl = document.getElementById("preview-contact");
 
-
-// Preview elements
-const previewHeadlineEl = document.getElementById("preview-headline");
-const previewSubtextEl = document.getElementById("preview-subtext");
-const previewButtonEl = document.getElementById("preview-button");
-const previewAboutHeadingEl = document.getElementById("preview-about-heading");
-const previewAboutBodyEl = document.getElementById("preview-about-body");
-const previewContactHeadingEl = document.getElementById(
-  "preview-contact-heading"
-);
-const previewContactBodyEl = document.getElementById("preview-contact-body");
-const previewContactButtonEl = document.getElementById(
-  "preview-contact-button"
-);
-
+// Iframe preview
 const previewFrameEl = document.getElementById("site-preview");
 const previewPageLabelEl = document.getElementById("preview-page-label");
 
-// 🔽 change this to your real client-site URL on GitHub Pages
-const CLIENT_SITE_BASE_URL =
-  "http://127.0.0.1:5500/client-site-template/";
+// Keep track of which page we’re previewing
+let currentPreviewPage = "home"; // "home" | "about" | "contact"
+
+// -------- Helpers --------
 
 function siteDocRef(siteId) {
   return doc(db, "sites", siteId);
 }
-
-// ------- Auth state handling -------
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    showLogin();
-    return;
-  }
-
-  userEmailEl.textContent = user.email || "";
-  showEditor();
-  await loadSite(CURRENT_SITE_ID);
-
-  // default preview to Home page
-  setPreviewPage("home");
-});
-
 
 function showLogin() {
   topbarEl.classList.add("hidden");
@@ -110,31 +84,111 @@ function showEditor() {
   loginCardEl.classList.add("hidden");
 }
 
-// ------- Login / logout -------
+/**
+ * Build the structured content object from the form fields
+ * This matches the Firestore shape under draft/published.
+ */
+function getContentFromForm() {
+  return {
+    hero: {
+      headline: heroHeadlineEl.value.trim(),
+      subtext: heroSubtextEl.value.trim(),
+      buttonText: heroButtonTextEl.value.trim(),
+    },
+    about: {
+      heading: aboutHeadingEl.value.trim(),
+      body: aboutBodyEl.value.trim(),
+    },
+    contact: {
+      heading: contactHeadingEl.value.trim(),
+      body: contactBodyEl.value.trim(),
+      buttonText: contactButtonTextEl.value.trim(),
+    },
+  };
+}
 
-loginFormEl.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  loginErrorEl.classList.add("hidden");
-  loginErrorEl.textContent = "";
+/**
+ * Set the iframe URL + label based on page, always in draft preview mode.
+ * The client site will read ?mode=draft and use data.draft.*.
+ */
+function setPreviewPage(page) {
+  currentPreviewPage = page;
 
-  const email = loginEmailEl.value.trim();
-  const password = loginPasswordEl.value;
+  let path = "/index.html";
+  let label = "Home";
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    loginPasswordEl.value = "";
-  } catch (err) {
-    console.error(err);
-    loginErrorEl.textContent = "Login failed. Check your email and password.";
-    loginErrorEl.classList.remove("hidden");
+  if (page === "about") {
+    path = "/about.html";
+    label = "About";
+  } else if (page === "contact") {
+    path = "/contact.html";
+    label = "Contact";
   }
+
+  if (previewFrameEl) {
+    const url = new URL(CLIENT_SITE_BASE_URL + path);
+    url.searchParams.set("mode", "draft");
+    previewFrameEl.src = url.toString();
+  }
+  if (previewPageLabelEl) {
+    previewPageLabelEl.textContent = label;
+  }
+}
+
+// Reload iframe (called after saving draft)
+function refreshPreview() {
+  if (previewFrameEl && previewFrameEl.src) {
+    const src = previewFrameEl.src;
+    previewFrameEl.src = src; // reassign to trigger reload
+  }
+}
+
+// -------- Auth state --------
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    showLogin();
+    return;
+  }
+
+  userEmailEl.textContent = user.email || "";
+  showEditor();
+  await loadSite(CURRENT_SITE_ID);
+
+  // Default preview to Home page on login
+  setPreviewPage("home");
 });
 
-logoutBtn.addEventListener("click", () => {
-  signOut(auth);
-});
+// -------- Login / logout --------
 
-// ------- Load site content -------
+if (loginFormEl) {
+  loginFormEl.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    loginErrorEl.classList.add("hidden");
+    loginErrorEl.textContent = "";
+
+    const email = loginEmailEl.value.trim();
+    const password = loginPasswordEl.value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      loginPasswordEl.value = "";
+    } catch (err) {
+      console.error(err);
+      loginErrorEl.textContent =
+        "Login failed. Check your email and password.";
+      loginErrorEl.classList.remove("hidden");
+    }
+  });
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth);
+  });
+}
+
+// -------- Load site content into form --------
 
 async function loadSite(siteId) {
   saveStatusEl.textContent = "Loading…";
@@ -145,27 +199,32 @@ async function loadSite(siteId) {
     if (snap.exists()) {
       const data = snap.data();
 
+      // Prefer draft → then published → then root (for backwards compat)
+      const root =
+        (data.draft && typeof data.draft === "object" && data.draft) ||
+        (data.published && typeof data.published === "object" && data.published) ||
+        data;
+
       // Home hero
-      const hero = data.hero || {};
+      const hero = root.hero || {};
       heroHeadlineEl.value = hero.headline || "";
       heroSubtextEl.value = hero.subtext || "";
       heroButtonTextEl.value = hero.buttonText || "";
 
       // About
-      const about = data.about || {};
+      const about = root.about || {};
       aboutHeadingEl.value = about.heading || "";
       aboutBodyEl.value = about.body || "";
 
       // Contact
-      const contact = data.contact || {};
+      const contact = root.contact || {};
       contactHeadingEl.value = contact.heading || "";
       contactBodyEl.value = contact.body || "";
       contactButtonTextEl.value = contact.buttonText || "";
 
-      updatePreview();
       saveStatusEl.textContent = "";
     } else {
-      // No content yet, clear fields and preview
+      // Clear if no doc yet
       heroHeadlineEl.value = "";
       heroSubtextEl.value = "";
       heroButtonTextEl.value = "";
@@ -174,7 +233,7 @@ async function loadSite(siteId) {
       contactHeadingEl.value = "";
       contactBodyEl.value = "";
       contactButtonTextEl.value = "";
-      updatePreview();
+
       saveStatusEl.textContent = "";
     }
   } catch (err) {
@@ -183,99 +242,80 @@ async function loadSite(siteId) {
   }
 }
 
-// ------- Save content -------
+// -------- Save draft --------
 
-saveBtn.addEventListener("click", async () => {
-  saveStatusEl.textContent = "Saving…";
+async function handleSaveDraft() {
+  saveStatusEl.textContent = "Saving draft…";
   saveBtn.disabled = true;
+  if (publishBtn) publishBtn.disabled = true;
 
   try {
+    const content = getContentFromForm();
     const ref = siteDocRef(CURRENT_SITE_ID);
 
-  await setDoc(
-    ref,
-    {
-      hero: {
-        headline: heroHeadlineEl.value.trim(),
-        subtext: heroSubtextEl.value.trim(),
-        buttonText: heroButtonTextEl.value.trim(),
+    await setDoc(
+      ref,
+      {
+        draft: content,
       },
-      about: {
-        heading: aboutHeadingEl.value.trim(),
-        body: aboutBodyEl.value.trim(),
-      },
-      contact: {
-        heading: contactHeadingEl.value.trim(),
-        body: contactBodyEl.value.trim(),
-        buttonText: contactButtonTextEl.value.trim(),
-      },
-    },
-    { merge: true }
-  );
+      { merge: true }
+    );
 
-  saveStatusEl.textContent = "Saved";
-
-  // 🔁 Refresh iframe to show latest data
-  if (previewFrameEl && previewFrameEl.src) {
-    // reassign the same src to trigger a reload
-    const currentSrc = previewFrameEl.src;
-    previewFrameEl.src = currentSrc;
-  }
-
-
-    saveStatusEl.textContent = "Saved";
+    saveStatusEl.textContent = "Draft saved";
+    refreshPreview();
   } catch (err) {
     console.error(err);
-    saveStatusEl.textContent = "Error saving";
+    saveStatusEl.textContent = "Error saving draft";
   } finally {
     saveBtn.disabled = false;
+    if (publishBtn) publishBtn.disabled = false;
     setTimeout(() => {
-      if (saveStatusEl.textContent === "Saved") {
+      if (saveStatusEl.textContent === "Draft saved") {
         saveStatusEl.textContent = "";
       }
     }, 1500);
   }
-});
-
-// ------- Preview updates -------
-
-function updatePreview() {
-  const h = heroHeadlineEl.value.trim();
-  const s = heroSubtextEl.value.trim();
-  const b = heroButtonTextEl.value.trim();
-
-  previewHeadlineEl.textContent =
-    h || "Your headline will appear here";
-  previewSubtextEl.textContent =
-    s ||
-    "Use this space to explain what you do in one or two sentences.";
-  previewButtonEl.textContent = b || "Primary action";
-
-  const ah = aboutHeadingEl.value.trim();
-  const ab = aboutBodyEl.value.trim();
-  previewAboutHeadingEl.textContent = ah || "About section heading";
-  previewAboutBodyEl.textContent =
-    ab || "This is where your About section text will appear.";
-
-  const ch = contactHeadingEl.value.trim();
-  const cb = contactBodyEl.value.trim();
-  const cbBtn = contactButtonTextEl.value.trim();
-  previewContactHeadingEl.textContent = ch || "Contact section heading";
-  previewContactBodyEl.textContent =
-    cb || "This is where your Contact section text will appear.";
-  previewContactButtonEl.textContent = cbBtn || "Contact button";
 }
 
-heroHeadlineEl.addEventListener("input", updatePreview);
-heroSubtextEl.addEventListener("input", updatePreview);
-heroButtonTextEl.addEventListener("input", updatePreview);
-aboutHeadingEl.addEventListener("input", updatePreview);
-aboutBodyEl.addEventListener("input", updatePreview);
-contactHeadingEl.addEventListener("input", updatePreview);
-contactBodyEl.addEventListener("input", updatePreview);
-contactButtonTextEl.addEventListener("input", updatePreview);
+// -------- Publish site --------
 
-// ------- Tabs behavior -------
+async function handlePublish() {
+  saveStatusEl.textContent = "Publishing…";
+  saveBtn.disabled = true;
+  publishBtn.disabled = true;
+
+  try {
+    const content = getContentFromForm();
+    const ref = siteDocRef(CURRENT_SITE_ID);
+
+    // Publish: copy current form snapshot into published
+    // and keep draft in sync so reopening the portal shows the latest.
+    await setDoc(
+      ref,
+      {
+        draft: content,
+        published: content,
+      },
+      { merge: true }
+    );
+
+    saveStatusEl.textContent = "Site published ✔";
+    // We keep the iframe in draft mode; since draft == published now, it matches.
+  } catch (err) {
+    console.error(err);
+    saveStatusEl.textContent = "Error publishing";
+  } finally {
+    saveBtn.disabled = false;
+    publishBtn.disabled = false;
+    setTimeout(() => {
+      if (saveStatusEl.textContent === "Site published ✔") {
+        saveStatusEl.textContent = "";
+      }
+    }, 1500);
+  }
+}
+
+// -------- Tabs: switch editor + preview page --------
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -285,7 +325,7 @@ tabButtons.forEach((btn) => {
     tabButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
 
-    // Show matching editor section
+    // Show the right editor
     editorHomeEl.classList.add("hidden");
     editorAboutEl.classList.add("hidden");
     editorContactEl.classList.add("hidden");
@@ -294,8 +334,16 @@ tabButtons.forEach((btn) => {
     if (section === "about") editorAboutEl.classList.remove("hidden");
     if (section === "contact") editorContactEl.classList.remove("hidden");
 
-    // Show matching page in iframe
+    // Show the right page in the iframe (draft mode)
     setPreviewPage(section);
   });
 });
 
+// -------- Wire up buttons --------
+
+if (saveBtn) {
+  saveBtn.addEventListener("click", handleSaveDraft);
+}
+if (publishBtn) {
+  publishBtn.addEventListener("click", handlePublish);
+}
