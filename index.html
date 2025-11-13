@@ -76,43 +76,107 @@
         <!-- Editor + preview layout (hidden until logged in) -->
         <main id="editor-layout" class="layout hidden">
           <!-- Editor card -->
+          <!-- Editor card -->
           <section class="card">
             <div class="card-header">
-              <h2 class="card-title">Home hero</h2>
+              <h2 class="card-title">Site content</h2>
               <p class="muted-text small">
-                Update the main hero section on your homepage.
+                Edit the text for your Home, About, and Contact sections.
               </p>
             </div>
             <div class="card-body">
-              <div class="form two-column">
-                <label class="field">
-                  <span class="field-label">Headline</span>
-                  <input
-                    id="hero-headline"
-                    class="input"
-                    placeholder="Example: Design that works as hard as you do."
-                  />
-                </label>
+              <!-- Tabs -->
+              <div class="tab-row">
+                <button class="tab editor-tab active" data-section="home">Home</button>
+                <button class="tab editor-tab" data-section="about">About</button>
+                <button class="tab editor-tab" data-section="contact">Contact</button>
+              </div>
 
-                <label class="field">
-                  <span class="field-label">Supporting text</span>
-                  <textarea
-                    id="hero-subtext"
-                    class="input textarea"
-                    placeholder="Add a short sentence that explains what you do and who you help."
-                  ></textarea>
-                </label>
+              <!-- HOME FIELDS -->
+              <div id="editor-home" class="editor-section">
+                <div class="form two-column">
+                  <label class="field">
+                    <span class="field-label">Headline</span>
+                    <input
+                      id="hero-headline"
+                      class="input"
+                      placeholder="Example: Design that works as hard as you do."
+                    />
+                  </label>
 
-                <label class="field">
-                  <span class="field-label">Button label</span>
-                  <input
-                    id="hero-button-text"
-                    class="input"
-                    placeholder="Example: Book a call"
-                  />
-                </label>
+                  <label class="field">
+                    <span class="field-label">Supporting text</span>
+                    <textarea
+                      id="hero-subtext"
+                      class="input textarea"
+                      placeholder="Add a short sentence that explains what you do and who you help."
+                    ></textarea>
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label">Button label</span>
+                    <input
+                      id="hero-button-text"
+                      class="input"
+                      placeholder="Example: Book a call"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- ABOUT FIELDS -->
+              <div id="editor-about" class="editor-section hidden">
+                <div class="form">
+                  <label class="field">
+                    <span class="field-label">About heading</span>
+                    <input
+                      id="about-heading"
+                      class="input"
+                      placeholder="Example: About our studio"
+                    />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">About text</span>
+                    <textarea
+                      id="about-body"
+                      class="input textarea"
+                      placeholder="Write a short paragraph introducing the business."
+                    ></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <!-- CONTACT FIELDS -->
+              <div id="editor-contact" class="editor-section hidden">
+                <div class="form">
+                  <label class="field">
+                    <span class="field-label">Contact heading</span>
+                    <input
+                      id="contact-heading"
+                      class="input"
+                      placeholder="Example: Ready to get started?"
+                    />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Contact text</span>
+                    <textarea
+                      id="contact-body"
+                      class="input textarea"
+                      placeholder="Explain how clients can reach out or what happens next."
+                    ></textarea>
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Button label</span>
+                    <input
+                      id="contact-button-text"
+                      class="input"
+                      placeholder="Example: Contact us"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
+
             <div class="card-footer space-between">
               <span id="save-status" class="muted-text tiny"></span>
               <button id="save-btn" class="button primary">
@@ -121,29 +185,38 @@
             </div>
           </section>
 
+
+
+          <!-- Preview card -->
+          <!-- Preview card -->
+          <!-- Preview card -->
           <!-- Preview card -->
           <section class="card">
             <div class="card-header">
-              <h2 class="card-title">Live preview</h2>
+              <h2 class="card-title">Live site preview</h2>
               <p class="muted-text small">
-                This is how your hero will look on the site.
+                This shows the actual site with its own CSS. Switch tabs to view each page.
               </p>
             </div>
             <div class="card-body">
-              <div class="hero-preview">
-                <div class="hero-tag">Home</div>
-                <h1 id="preview-headline" class="hero-title">
-                  Your headline will appear here
-                </h1>
-                <p id="preview-subtext" class="hero-subtext">
-                  Use this space to explain what you do in one or two sentences.
-                </p>
-                <button id="preview-button" class="button hero-button">
-                  Primary action
-                </button>
+              <div class="preview-toolbar">
+                <span class="muted-text tiny">Viewing:</span>
+                <span id="preview-page-label" class="muted-text small">Home</span>
+              </div>
+              <div class="iframe-wrapper">
+                <iframe
+                  id="site-preview"
+                  title="Client site preview"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
               </div>
             </div>
           </section>
+
+
+
+
         </main>
       </div>
     </div>
